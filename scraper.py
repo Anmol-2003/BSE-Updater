@@ -14,8 +14,7 @@ import argparse
 from loguru import logger
 from utils import retriever
 from utils import pdf
-from utils import sendSMS
-
+from utils import storeData
 
 logger.add("logfile.log", rotation="500 MB", retention="12 days", compression="zip")
 
@@ -123,12 +122,14 @@ def process_reports(reports):
             print(report)
             filepath = report['filepath']
             if report['category'] == 'Result': 
-                prompt = "What is the Total Income/Revenue that the company made in its latest quarter in comparison with the last quarter. What is its Net Proft before and after tax."
+                prompt = "Give Standalone total income/revenue, profit before and after tax of the company. Use proper symbol for representing currency."
             else: 
                 prompt = f"Give me the order amount the company {report['company']} received and by whom, the date at which the order was given and also the time period by which the order has to be executed."
-            response = retriever.get_information(file_path=filepath, prompt=prompt)
-            print(response.upper(), end='\n\n')
-            sendSMS.sendSMSNotification(['+917042690376'], f"{report['company'].upper()}\n{response}")
+            response = retriever.get_information(filepath, prompt, report['category'])
+            print(response, end='\n\n')
+            if report['category'] != "Result" :
+                storeData.writeIntoFile(report, response)
+            # sendSMS.sendSMSNotification(['+917042690376'], f"{report['company'].upper()}\n{response}")
         shutil.rmtree('files')
     return
 

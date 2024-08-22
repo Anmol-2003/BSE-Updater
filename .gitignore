@@ -1,2 +1,8 @@
 .env
 /virtual_env
+bse-pubKey
+bse-pvtKey.ppk
+logfile.log
+
+
+
